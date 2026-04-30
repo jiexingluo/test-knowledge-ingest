@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "2026.04-v1",
+  "purpose": "Analysis scaffolding for AI to understand ATE test program structure. These entities are intermediate — the AI maps file content into these entities, then generalizes patterns into Knowledge and Know-how.",
+  "programEntities": {
+    "test_flow": {
+      "meaning": "Ordered flow of test operations and branching conditions",
+      "signals": ["flow labels", "branching logic", "suite ordering", "enable/bypass conditions"],
+      "extractionHint": "Look for main test flow definitions, conditional branches, and test suite sequencing"
+    },
+    "test_instance": {
+      "meaning": "A concrete measurement or functional test invocation",
+      "signals": ["test method calls", "instance names", "measurement steps", "function-test execution points"],
+      "extractionHint": "Identify individual test calls, their parameters, and what they measure"
+    },
+    "timing": {
+      "meaning": "Timing setup, margin, and protocol-specific timing controls",
+      "signals": ["edge placement", "timing sets", "timing overrides", "protocol margins", "settling time"],
+      "extractionHint": "Look for timing configuration, margin settings, and protocol-specific timing"
+    },
+    "levels": {
+      "meaning": "Voltage or current levels applied before, during, or after tests",
+      "signals": ["DPS levels", "PMU settings", "VIH/VIL", "force/clamp settings"],
+      "extractionHint": "Identify voltage and current level configurations and their purposes"
+    },
+    "pattern": {
+      "meaning": "Digital pattern or burst content invoked by the program",
+      "signals": ["pattern names", "burst references", "vector groups", "protocol sequences"],
+      "extractionHint": "Find pattern file references, burst configurations, and vector usage"
+    },
+    "bin": {
+      "meaning": "Softbin or hardbin mapping for pass/fail handling",
+      "signals": ["bin assignment", "fail routing", "category mapping", "exit handling"],
+      "extractionHint": "Map bin numbers to test outcomes and failure categories"
+    },
+    "limit": {
+      "meaning": "Numeric limits, thresholds, and pass/fail comparisons",
+      "signals": ["upper/lower limits", "guardbands", "compare thresholds", "screening windows"],
+      "extractionHint": "Extract test limits, guardbands, and how they relate to spec requirements"
+    },
+    "measurement_setup": {
+      "meaning": "Instrument setup that precedes a measurement",
+      "signals": ["current range", "voltage range", "compliance", "meter path", "channel setup"],
+      "extractionHint": "Identify instrument configuration done before actual measurement"
+    },
+    "special_handling": {
+      "meaning": "Exception logic, recovery logic, or device-family-specific handling",
+      "signals": ["retries", "alternate flows", "family overrides", "error recovery"],
+      "extractionHint": "Find non-standard paths, error handling, and device-specific workarounds"
+    }
+  },
+  "documentEntities": {
+    "spec_item": {
+      "meaning": "A standards, datasheet, or manual statement that constrains behavior",
+      "signals": ["must/shall statements", "numeric requirements", "setup requirements"],
+      "extractionHint": "Extract explicit constraints and requirements from documentation"
+    },
+    "coverage_intent": {
+      "meaning": "What the test plan is trying to prove, screen out, or guarantee",
+      "signals": ["coverage goals", "rationale text", "defect-screen intent"],
+      "extractionHint": "Understand the testing strategy and what defects it targets"
+    }
+  }
+}

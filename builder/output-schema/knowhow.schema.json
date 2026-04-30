@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Know-how Entry",
+  "description": "Procedural experience derived from repeated program behavior, setup discipline, or stable implementation patterns",
+  "type": "object",
+  "required": ["id", "type", "title", "summary", "context", "triggerConditions", "action", "scope", "evidence", "reviewStatus"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^kh-[a-z0-9-]+$" },
+    "type": { "const": "knowhow" },
+    "title": { "type": "string", "maxLength": 120 },
+    "summary": { "type": "string", "maxLength": 500 },
+    "context": { "type": "string", "description": "Background situation where this know-how is relevant" },
+    "triggerConditions": { "type": "string", "description": "Specific conditions that trigger this practice" },
+    "action": { "type": "string", "description": "What to do — the procedural rule or heuristic" },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "chipType": { "type": "string" },
+        "domain": { "type": "string" },
+        "universal": { "type": "boolean", "default": false }
+      },
+      "required": ["chipType"]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project": { "type": "string" },
+          "description": { "type": "string" },
+          "sourceFile": { "type": "string" },
+          "rawExcerpt": { "type": "string" }
+        },
+        "required": ["project", "description"]
+      },
+      "minItems": 1
+    },
+    "sourceAnchors": { "type": "array", "items": { "$ref": "#/$defs/sourceAnchor" } },
+    "relatedItems": { "type": "array", "items": { "type": "string" } },
+    "openQuestions": { "type": "array", "items": { "type": "string" } },
+    "reviewNotes": { "type": "array", "items": { "type": "string" } },
+    "reviewStatus": { "enum": ["draft", "confirmed", "revised"] },
+    "dialogueHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "round": { "type": "number" },
+          "questionId": { "type": "string" },
+          "question": { "type": "string" },
+          "answer": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sourceAnchor": {
+      "type": "object",
+      "properties": {
+        "project": { "type": "string" },
+        "file": { "type": "string" },
+        "lines": { "type": "string" },
+        "excerpt": { "type": "string" }
+      },
+      "required": ["project", "file", "excerpt"]
+    }
+  }
+}

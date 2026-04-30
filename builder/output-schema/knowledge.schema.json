@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Knowledge Entry",
+  "description": "Factual, document-backed knowledge derived from datasheets, test plans, manuals, and explicit constraints",
+  "type": "object",
+  "required": ["id", "type", "title", "summary", "context", "action", "scope", "evidence", "reviewStatus"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^k-[a-z0-9-]+$" },
+    "type": { "const": "knowledge" },
+    "title": { "type": "string", "maxLength": 120 },
+    "summary": { "type": "string", "maxLength": 500 },
+    "context": { "type": "string", "description": "When and where this knowledge applies" },
+    "action": { "type": "string", "description": "The rule, constraint, or factual statement" },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "chipType": { "type": "string" },
+        "domain": { "type": "string" },
+        "universal": { "type": "boolean", "default": false }
+      },
+      "required": ["chipType"]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project": { "type": "string" },
+          "description": { "type": "string" },
+          "sourceFile": { "type": "string" },
+          "rawExcerpt": { "type": "string" }
+        },
+        "required": ["project", "description"]
+      },
+      "minItems": 1
+    },
+    "sourceAnchors": { "type": "array", "items": { "$ref": "#/$defs/sourceAnchor" } },
+    "relatedItems": { "type": "array", "items": { "type": "string" } },
+    "openQuestions": { "type": "array", "items": { "type": "string" } },
+    "reviewNotes": { "type": "array", "items": { "type": "string" } },
+    "reviewStatus": { "enum": ["draft", "confirmed", "revised"] }
+  },
+  "$defs": {
+    "sourceAnchor": {
+      "type": "object",
+      "properties": {
+        "project": { "type": "string" },
+        "file": { "type": "string" },
+        "lines": { "type": "string" },
+        "excerpt": { "type": "string" }
+      },
+      "required": ["project", "file", "excerpt"]
+    }
+  }
+}

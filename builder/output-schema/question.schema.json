@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Question",
+  "description": "Structured question generated during ingest for user confirmation. Always 3 fixed options + 1 free-text option.",
+  "type": "object",
+  "required": ["id", "category", "group", "priority", "title", "background", "options"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^q-[a-z0-9-]+$" },
+    "category": { "enum": ["mismatch", "gap", "depth", "conflict"] },
+    "group": { "type": "string", "description": "Topic group for UI grouping (e.g., 'timing', 'levels', 'cross-project')" },
+    "priority": { "type": "number", "minimum": 1, "maximum": 100, "description": "Higher = more important" },
+    "title": { "type": "string", "maxLength": 200 },
+    "background": { "type": "string", "description": "Context explaining why this question matters" },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["label", "description"]
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "relatedEntities": { "type": "array", "items": { "type": "string" } },
+    "sourceAnchors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project": { "type": "string" },
+          "file": { "type": "string" },
+          "lines": { "type": "string" },
+          "excerpt": { "type": "string" }
+        },
+        "required": ["project", "file", "excerpt"]
+      }
+    }
+  }
+}
