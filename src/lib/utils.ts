@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getDataDir(): string {
-  return join(process.cwd(), process.env.DATA_DIR || "data");
+  return join(/*turbopackIgnore: true*/ process.cwd(), process.env.DATA_DIR || "data");
 }
 
 export function getWorkspacesDir(): string {
