@@ -8,13 +8,14 @@ function getModel() {
   const provider = process.env.AI_PROVIDER || "anthropic";
   const apiKey = process.env.AI_API_KEY || "";
   const modelId = process.env.AI_MODEL || "claude-sonnet-4-20250514";
+  const baseURL = process.env.AI_BASE_URL;
 
   if (provider === "anthropic") {
-    const anthropic = createAnthropic({ apiKey });
+    const anthropic = createAnthropic({ apiKey, ...(baseURL ? { baseURL } : {}) });
     return anthropic(modelId);
   }
   if (provider === "openai") {
-    const openai = createOpenAI({ apiKey });
+    const openai = createOpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
     return openai(modelId);
   }
   throw new Error(`不支持的 AI 提供商: ${provider}`);
