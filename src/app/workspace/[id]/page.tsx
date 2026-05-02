@@ -158,12 +158,12 @@ export default function WorkspacePage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="projects">项目文件</TabsTrigger>
-          <TabsTrigger value="references">参考资料</TabsTrigger>
-          {ingestStatus && <TabsTrigger value="progress">处理进度</TabsTrigger>}
+        <TabsList variant="line" className="w-full border-b rounded-none justify-start h-auto pb-0 gap-0">
+          <TabsTrigger value="projects" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">项目文件</TabsTrigger>
+          <TabsTrigger value="references" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">参考资料</TabsTrigger>
+          {ingestStatus && <TabsTrigger value="progress" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">处理进度</TabsTrigger>}
           {showQuestions && (
-            <TabsTrigger value="questions" className="text-orange-600">
+            <TabsTrigger value="questions" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2 text-orange-600">
               问题确认
               {latestRound && latestRound.questionCount > latestRound.answeredCount && (
                 <span className="ml-1.5 bg-orange-100 text-orange-600 text-xs rounded-full px-1.5 py-0.5">
@@ -173,7 +173,7 @@ export default function WorkspacePage() {
             </TabsTrigger>
           )}
           {workspace.rounds.some((r) => r.status === "completed") && (
-            <TabsTrigger value="kb">知识库</TabsTrigger>
+            <TabsTrigger value="kb" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">知识库</TabsTrigger>
           )}
         </TabsList>
 
