@@ -3,6 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import type { KBEntry } from "@/types";
 
 interface KBEntryViewerProps {
@@ -22,8 +24,8 @@ export function KBEntryViewer({ entry, onClose }: KBEntryViewerProps) {
           </div>
           <h3 className="text-lg font-medium">{entry.title}</h3>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">
-          ✕
+        <button onClick={onClose} aria-label="关闭" className="text-gray-400 hover:text-gray-600 text-xl leading-none">
+          <X className="size-5" />
         </button>
       </div>
 

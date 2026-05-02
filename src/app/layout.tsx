@@ -19,13 +19,13 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={inter.className}>
         <div className="min-h-screen bg-gray-50">
-          <header className="border-b bg-white px-6 py-3">
+          <header className="border-b bg-white px-6 py-3" role="banner">
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-semibold">Knowledge Ingest System</h1>
-              <span className="text-sm text-gray-500">ATE 测试知识提取工具</span>
+              <span className="text-sm text-gray-500" aria-label="工具描述">ATE 测试知识提取工具</span>
             </div>
           </header>
-          <main className="mx-auto max-w-7xl p-6">{children}</main>
+          <main className="mx-auto max-w-7xl p-6" role="main">{children}</main>
         </div>
         <Toaster />
       </body>
