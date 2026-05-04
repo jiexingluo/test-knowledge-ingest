@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile, mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { nanoid } from "nanoid";
 import type { Workspace, WorkspaceCreateInput } from "@/types";
-import { getWorkspacesDir, getWorkspaceDir } from "@/lib/utils";
+import { getWorkspacesDir, getWorkspaceDir } from "@/lib/server-paths";
 
 export async function listWorkspaces(): Promise<Workspace[]> {
   const dir = getWorkspacesDir();

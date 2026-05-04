@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import type { KBMeta, KBEntry, KBGraph } from "@/types";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 
 function kbDir(workspaceId: string) {
   return join(getWorkspaceDir(workspaceId), "knowledge-base");

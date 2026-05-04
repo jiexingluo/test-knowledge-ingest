@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { getWorkspace, updateWorkspace } from "@/lib/storage/workspace";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 import type { Question } from "@/types";
 
 export async function GET(

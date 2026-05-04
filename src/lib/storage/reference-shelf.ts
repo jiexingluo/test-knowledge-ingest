@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile, mkdir, stat, unlink } from "fs/promises";
 import { join } from "path";
 import type { ReferenceDoc } from "@/types";
-import { getReferenceShelfDir } from "@/lib/utils";
+import { getReferenceShelfDir } from "@/lib/server-paths";
 
 export async function listReferences(): Promise<ReferenceDoc[]> {
   const dir = getReferenceShelfDir();

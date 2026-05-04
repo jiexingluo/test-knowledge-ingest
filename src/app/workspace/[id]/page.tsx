@@ -14,7 +14,7 @@ import { ReferenceShelf } from "@/components/reference-shelf";
 import { IngestProgress } from "@/components/ingest-progress";
 import { QuestionPanel } from "@/components/question-panel";
 import { KBBrowser } from "@/components/kb-browser";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Play, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { Workspace, Project, IngestProgress as IngestProgressType } from "@/types";
 
@@ -44,7 +44,7 @@ export default function WorkspacePage() {
       if (!res.ok) return;
       setProjects(await res.json());
     } catch {
-      // non-critical, don't block the page
+      // non-critical
     }
   }, [workspaceId]);
 
@@ -60,13 +60,20 @@ export default function WorkspacePage() {
   }, [workspaceId]);
 
   useEffect(() => {
-    loadWorkspace();
-    loadProjects();
-    checkIngestStatus();
+    async function syncWorkspaceData() {
+      await Promise.all([loadWorkspace(), loadProjects(), checkIngestStatus()]);
+    }
+
+    void syncWorkspaceData();
   }, [loadWorkspace, loadProjects, checkIngestStatus]);
 
   useEffect(() => {
-    if (!ingestStatus || ingestStatus.status === "completed" || ingestStatus.status === "failed") return;
+    if (
+      !ingestStatus ||
+      ingestStatus.status === "completed" ||
+      ingestStatus.status === "failed"
+    )
+      return;
     const interval = setInterval(checkIngestStatus, 3000);
     return () => clearInterval(interval);
   }, [ingestStatus, checkIngestStatus]);
@@ -90,32 +97,38 @@ export default function WorkspacePage() {
     }
   }
 
+  /* ── Error state ── */
   if (loadError) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-500 font-medium">{loadError}</p>
-        <Link href="/" className="text-sm text-blue-500 mt-2 inline-block hover:underline">
-          ← 返回工作区列表
+        <p className="font-medium text-destructive">{loadError}</p>
+        <Link
+          href="/"
+          className="text-sm text-primary mt-3 inline-flex items-center gap-1 hover:underline"
+        >
+          <ArrowLeft className="size-3.5" />
+          返回工作区列表
         </Link>
       </div>
     );
   }
 
+  /* ── Loading state ── */
   if (!workspace) {
     return (
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div className="space-y-2">
             <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-7 w-48" />
-            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-7 w-52" />
+            <Skeleton className="h-4 w-72" />
           </div>
           <Skeleton className="h-9 w-28" />
         </div>
         <Skeleton className="h-10 w-full mb-4" />
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-lg" />
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
           ))}
         </div>
       </div>
@@ -126,80 +139,147 @@ export default function WorkspacePage() {
   const showQuestions =
     latestRound?.status === "awaiting_answers" ||
     ingestStatus?.status === "awaiting_answers";
+  const hasKB = workspace.rounds.some((r) => r.status === "completed");
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            ← 返回工作区列表
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2"
+          >
+            <ArrowLeft className="size-3" />
+            工作区列表
           </Link>
-          <h2 className="text-2xl font-bold mt-1">{workspace.name}</h2>
-          <p className="text-gray-500 text-sm">
-            芯片类型: <span className="font-medium text-gray-700">{workspace.chipType}</span>
-            {" · "}{workspace.projectCount} 个项目
-            {" · "}{workspace.rounds.length} 轮 ingest
+          <h2 className="text-2xl font-semibold text-foreground tracking-tight">
+            {workspace.name}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            芯片类型：
+            <span className="font-medium text-foreground">
+              {workspace.chipType}
+            </span>
+            <span className="mx-1.5">·</span>
+            {workspace.projectCount} 个项目
+            <span className="mx-1.5">·</span>
+            {workspace.rounds.length} 轮 Ingest
           </p>
         </div>
-        <div className="flex gap-2">
-          {projects.length > 0 && (
-            <Button
-              onClick={handleStartIngest}
-              disabled={!!ingestStatus || startingIngest}
-            >
-              {startingIngest ? (
-                <><Loader2 className="size-4 mr-2 animate-spin" />启动中...</>
-              ) : (
-                workspace.rounds.length === 0 ? "开始 Ingest" : "增量 Ingest"
-              )}
-            </Button>
-          )}
-        </div>
+
+        {projects.length > 0 && (
+          <Button
+            onClick={handleStartIngest}
+            disabled={!!ingestStatus || startingIngest}
+            className="shrink-0"
+          >
+            {startingIngest ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                启动中...
+              </>
+            ) : workspace.rounds.length === 0 ? (
+              <>
+                <Play className="size-4 mr-2" />
+                开始 Ingest
+              </>
+            ) : (
+              <>
+                <RefreshCw className="size-4 mr-2" />
+                增量 Ingest
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList variant="line" className="w-full border-b rounded-none justify-start h-auto pb-0 gap-0">
-          <TabsTrigger value="projects" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">项目文件</TabsTrigger>
-          <TabsTrigger value="references" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">参考资料</TabsTrigger>
-          {ingestStatus && <TabsTrigger value="progress" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">处理进度</TabsTrigger>}
-          {showQuestions && (
-            <TabsTrigger value="questions" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2 text-orange-600">
-              问题确认
-              {latestRound && latestRound.questionCount > latestRound.answeredCount && (
-                <span className="ml-1.5 bg-orange-100 text-orange-600 text-xs rounded-full px-1.5 py-0.5">
-                  {latestRound.questionCount - latestRound.answeredCount}
-                </span>
-              )}
+        <TabsList
+          variant="line"
+          className="w-full border-b rounded-none justify-start h-auto pb-0 gap-0"
+        >
+          <TabsTrigger
+            value="projects"
+            className="rounded-none border-b-2 border-transparent data-active:border-primary px-4 py-2.5"
+          >
+            项目文件
+          </TabsTrigger>
+          <TabsTrigger
+            value="references"
+            className="rounded-none border-b-2 border-transparent data-active:border-primary px-4 py-2.5"
+          >
+            参考资料
+          </TabsTrigger>
+          {ingestStatus && (
+            <TabsTrigger
+              value="progress"
+              className="rounded-none border-b-2 border-transparent data-active:border-primary px-4 py-2.5"
+            >
+              处理进度
             </TabsTrigger>
           )}
-          {workspace.rounds.some((r) => r.status === "completed") && (
-            <TabsTrigger value="kb" className="rounded-none border-b-2 border-transparent data-active:border-foreground px-4 py-2">知识库</TabsTrigger>
+          {showQuestions && (
+            <TabsTrigger
+              value="questions"
+              className="rounded-none border-b-2 border-transparent data-active:border-primary px-4 py-2.5 text-amber-600 data-active:text-amber-700"
+            >
+              问题确认
+              {latestRound &&
+                latestRound.questionCount > latestRound.answeredCount && (
+                  <span className="ml-1.5 bg-amber-100 text-amber-700 text-xs rounded-full px-1.5 py-0.5 font-medium">
+                    {latestRound.questionCount - latestRound.answeredCount}
+                  </span>
+                )}
+            </TabsTrigger>
+          )}
+          {hasKB && (
+            <TabsTrigger
+              value="kb"
+              className="rounded-none border-b-2 border-transparent data-active:border-primary px-4 py-2.5"
+            >
+              知识库
+            </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="projects" className="mt-4">
+        {/* Projects tab */}
+        <TabsContent value="projects" className="mt-5">
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
               {projects.length === 0 ? (
-                <div className="text-center py-12 text-gray-400 border-2 border-dashed rounded-lg">
+                <div className="text-center py-14 rounded-xl border-2 border-dashed border-border">
                   <div className="text-3xl mb-2">📁</div>
-                  <p className="font-medium text-gray-500">还没有项目</p>
-                  <p className="text-sm mt-1">在右侧上传项目文件夹</p>
+                  <p className="text-sm font-medium text-foreground">
+                    还没有项目
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    在右侧上传项目文件夹
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {projects.map((p) => (
-                    <Card key={p.name} className="p-3">
+                    <Card key={p.name} className="p-3.5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="font-medium">{p.name}</span>
-                          <span className="text-sm text-gray-400 ml-2">{p.fileCount} 个文件</span>
+                          <span className="font-medium text-sm text-foreground">
+                            {p.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            {p.fileCount} 个文件
+                          </span>
                         </div>
-                        {p.classification && p.classification.missingTypes.length > 0 && (
-                          <Badge variant="outline" className="text-orange-600 border-orange-200">
-                            缺少文件
-                          </Badge>
-                        )}
+                        {p.classification &&
+                          p.classification.missingTypes.length > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="text-amber-600 border-amber-200 bg-amber-50 text-xs"
+                            >
+                              缺少文件
+                            </Badge>
+                          )}
                       </div>
                       {p.classification && (
                         <MissingFilesAlert
@@ -215,59 +295,81 @@ export default function WorkspacePage() {
             <div>
               <ProjectUpload
                 workspaceId={workspaceId}
-                onUploadComplete={() => { loadProjects(); loadWorkspace(); }}
+                onUploadComplete={() => {
+                  loadProjects();
+                  loadWorkspace();
+                }}
               />
             </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="references" className="mt-4">
+        {/* References tab */}
+        <TabsContent value="references" className="mt-5">
           <ReferenceShelf />
         </TabsContent>
 
-        <TabsContent value="progress" className="mt-4">
+        {/* Progress tab */}
+        <TabsContent value="progress" className="mt-5">
           {ingestStatus && <IngestProgress progress={ingestStatus} />}
         </TabsContent>
 
-        <TabsContent value="questions" className="mt-4">
+        {/* Questions tab */}
+        <TabsContent value="questions" className="mt-5">
           {latestRound && (
             <QuestionPanel
               workspaceId={workspaceId}
               roundNumber={latestRound.roundNumber}
-              onComplete={() => { loadWorkspace(); setActiveTab("kb"); }}
+              onComplete={() => {
+                loadWorkspace();
+                setActiveTab("kb");
+              }}
             />
           )}
         </TabsContent>
 
-        <TabsContent value="kb" className="mt-4">
+        {/* Knowledge Base tab */}
+        <TabsContent value="kb" className="mt-5">
           <KBBrowser workspaceId={workspaceId} />
         </TabsContent>
       </Tabs>
 
+      {/* Ingest history */}
       {workspace.rounds.length > 0 && (
-        <Card className="mt-6 p-4">
-          <h3 className="font-medium mb-3 text-sm text-gray-600 uppercase tracking-wide">Ingest 历史</h3>
-          <div className="space-y-2">
+        <Card className="mt-8 p-4">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Ingest 历史
+          </h3>
+          <div className="divide-y">
             {workspace.rounds.map((round) => (
               <div
                 key={round.roundNumber}
-                className="flex items-center justify-between text-sm py-1.5 border-b last:border-0"
+                className="flex items-center justify-between py-2.5 text-sm"
               >
                 <div className="flex items-center gap-3">
-                  <span className="font-medium">Round {round.roundNumber}</span>
-                  <span className="text-gray-400 text-xs">
+                  <span className="font-medium text-foreground">
+                    第 {round.roundNumber} 轮
+                  </span>
+                  <span className="text-muted-foreground text-xs">
                     {new Date(round.startedAt).toLocaleDateString("zh-CN")}
                   </span>
-                  <span className="text-gray-400 text-xs">{round.projects.length} 个项目</span>
+                  <span className="text-muted-foreground text-xs">
+                    {round.projects.length} 个项目
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {round.questionCount > 0 && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       {round.answeredCount}/{round.questionCount} 问题
                     </span>
                   )}
-                  <Badge variant={round.status === "completed" ? "default" : "outline"} className="text-xs">
-                    {round.status === "completed" ? "已完成" : round.status}
+                  <Badge
+                    variant={round.status === "completed" ? "default" : "outline"}
+                    className="text-xs"
+                  >
+                    {round.status === "completed"
+                      ? "已完成"
+                      : statusLabel(round.status)}
                   </Badge>
                 </div>
               </div>
@@ -277,4 +379,18 @@ export default function WorkspacePage() {
       )}
     </div>
   );
+}
+
+function statusLabel(status: string): string {
+  const map: Record<string, string> = {
+    classifying: "分类中",
+    extracting: "提取中",
+    analyzing: "分析中",
+    generating_questions: "生成问题",
+    awaiting_answers: "待确认",
+    assembling_kb: "组装中",
+    completed: "已完成",
+    failed: "失败",
+  };
+  return map[status] || status;
 }

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WorkspaceCardSkeleton } from "@/components/skeleton";
+import { ChevronRight, FolderOpen } from "lucide-react";
 import type { Workspace } from "@/types";
 
 export function WorkspaceList() {
@@ -25,7 +25,7 @@ export function WorkspaceList() {
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <WorkspaceCardSkeleton key={i} />
         ))}
@@ -35,57 +35,73 @@ export function WorkspaceList() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <p className="text-red-500 font-medium">加载失败</p>
-        <p className="text-sm text-gray-400 mt-1">{error}</p>
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-8 text-center">
+        <p className="font-medium text-destructive">加载失败</p>
+        <p className="mt-1 text-sm text-muted-foreground">{error}</p>
       </div>
     );
   }
 
   if (workspaces.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-400">
-        <div className="text-4xl mb-3" aria-hidden="true">📂</div>
-        <p className="text-base font-medium text-gray-500">还没有工作区</p>
-        <p className="text-sm mt-1">点击右上角"新建工作区"开始提取知识</p>
+      <div className="rounded-xl border-2 border-dashed border-border py-16 text-center">
+        <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-muted">
+          <FolderOpen className="size-6 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium text-foreground">还没有工作区</p>
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          点击右上角「新建工作区」开始提取知识
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       {workspaces.map((ws) => {
         const latestRound = ws.rounds[ws.rounds.length - 1];
         return (
           <Link key={ws.id} href={`/workspace/${ws.id}`}>
-            <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer h-full">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">{ws.name}</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">{ws.chipType}</p>
+            <div className="group relative flex h-full cursor-pointer flex-col rounded-xl border bg-card p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md">
+              <div className="mb-3 flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-semibold leading-snug text-foreground">
+                    {ws.name}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {ws.chipType}
+                  </p>
                 </div>
-                {latestRound && (
-                  <Badge
-                    variant={
-                      latestRound.status === "completed"
-                        ? "default"
-                        : latestRound.status === "awaiting_answers"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {statusLabel(latestRound.status)}
-                  </Badge>
-                )}
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {latestRound && (
+                    <Badge
+                      variant={
+                        latestRound.status === "completed"
+                          ? "default"
+                          : latestRound.status === "awaiting_answers"
+                            ? "secondary"
+                            : "outline"
+                      }
+                      className="text-xs"
+                    >
+                      {statusLabel(latestRound.status)}
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <div className="mt-3 flex gap-4 text-xs text-gray-400">
+
+              <div className="mt-auto flex gap-4 text-xs text-muted-foreground">
                 <span>{ws.projectCount} 个项目</span>
-                <span>{ws.rounds.length} 轮 ingest</span>
+                <span>{ws.rounds.length} 轮 Ingest</span>
                 {ws.description && (
-                  <span className="truncate text-gray-300">{ws.description}</span>
+                  <span className="truncate text-muted-foreground/60">
+                    {ws.description}
+                  </span>
                 )}
               </div>
-            </Card>
+
+              <ChevronRight className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/30 transition-colors group-hover:text-primary/50" />
+            </div>
           </Link>
         );
       })}

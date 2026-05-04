@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { aiGenerateText } from "@/lib/ai/provider";
 import { getEntityDefinitions, getPromptTemplate } from "@/lib/builder/config";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 import type { EntityMap, FileClassification } from "@/types";
 import { getAnalyzableFiles } from "./autodiscovery";
 

@@ -33,7 +33,13 @@ export function QuestionPanel({ workspaceId, roundNumber, onComplete }: Question
     }
   }, [workspaceId]);
 
-  useEffect(() => { loadQuestions(); }, [loadQuestions]);
+  useEffect(() => {
+    async function syncQuestions() {
+      await loadQuestions();
+    }
+
+    void syncQuestions();
+  }, [loadQuestions]);
 
   async function handleAnswer(questionId: string, selectedOption: number | null, customText?: string) {
     setSubmitting(questionId);
@@ -119,7 +125,7 @@ export function QuestionPanel({ workspaceId, roundNumber, onComplete }: Question
       {total === 0 ? (
         <div className="text-center py-12 text-gray-400">
           <p>没有需要确认的问题</p>
-          <p className="text-sm mt-1">可以直接点击"生成知识库"</p>
+          <p className="text-sm mt-1">可以直接点击「生成知识库」</p>
         </div>
       ) : (
         <div className="space-y-6">

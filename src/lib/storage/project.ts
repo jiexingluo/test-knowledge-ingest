@@ -7,7 +7,7 @@ import type {
   FileCategory,
   MissingFileType,
 } from "@/types";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 
 export async function listProjects(workspaceId: string): Promise<Project[]> {
   const projectsDir = join(getWorkspaceDir(workspaceId), "projects");

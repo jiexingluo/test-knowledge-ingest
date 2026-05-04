@@ -3,7 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { listProjects, classifyProject } from "@/lib/storage/project";
 import { getWorkspace, updateWorkspace } from "@/lib/storage/workspace";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 
 export async function GET(
   _request: NextRequest,

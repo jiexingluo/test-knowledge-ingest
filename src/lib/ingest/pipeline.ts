@@ -1,6 +1,6 @@
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { join } from "path";
-import { getWorkspaceDir } from "@/lib/utils";
+import { getWorkspaceDir } from "@/lib/server-paths";
 import {
   getWorkspace,
   updateWorkspace,

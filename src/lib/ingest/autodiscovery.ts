@@ -1,5 +1,3 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import {
   getProjectFiles,
   classifyProject,
